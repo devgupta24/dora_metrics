@@ -30,6 +30,7 @@ def validate_df(df, allowed_roles=None, name_pattern=r"^[A-Za-z ]+$", min_age=0,
 
     # Name pattern
     bad_names = df["Name"].astype(str).apply(lambda s: not bool(re.match(name_pattern, s)))
+    
     report["invalid_name_count"] = int(bad_names.sum())
 
     # Basic shape checks
