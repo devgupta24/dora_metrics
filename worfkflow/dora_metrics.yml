@@ -1,0 +1,35 @@
+name: DORA Metrics
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  dora:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Calculate DORA Metrics
+        uses: stenjo/devops-metrics-action@v1
+        id: dora
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print Metrics
+        run: |
+          echo "Deployment Frequency:"
+          echo "${{ steps.dora.outputs.deploy-frequency }}"
+
+          echo "Lead Time:"
+          echo "${{ steps.dora.outputs.lead-time }}"
+
+          echo "Change Failure Rate:"
+          echo "${{ steps.dora.outputs.change-failure-rate }}"
+
+          echo "MTTR:"
+          echo "${{ steps.dora.outputs.mttr }}"
