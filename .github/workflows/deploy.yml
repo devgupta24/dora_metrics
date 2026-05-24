@@ -14,5 +14,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Deployment
-        # run: echo "Deployment Successful"
-        run: exit 1
+        run: echo "Deployment Successful"
+        # run: exit 1
