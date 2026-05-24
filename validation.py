@@ -42,21 +42,19 @@ if __name__ == "__main__":
     df = pd.DataFrame([["Alice",48,"Engineer"],["Bob",28,"Designer"]],
                       columns=["Name","Age","Role"])
     print(validate_df(df))
+    # missing values per column
+    print(df.isna().sum())
 
-# missing values per column
-print(df.isna().sum())
+    # find duplicate rows
+    print(df[df.duplicated()])
 
-# find duplicate rows
-print(df[df.duplicated()])
+    # invalid ages (non-numeric or out of range)
+    ages = pd.to_numeric(df["Age"], errors="coerce")
+    print(df[ages.isna() | (ages < 0) | (ages > 120)])
 
-# invalid ages (non-numeric or out of range)
-ages = pd.to_numeric(df["Age"], errors="coerce")
-print(df[ages.isna() | (ages < 0) | (ages > 120)])
+    # roles outside allowed set
+    allowed = {"Engineer","Designer"}
+    print(df[~df["Role"].isin(allowed)])
 
-# roles outside allowed set
-allowed = {"Engineer","Designer"}
-print(df[~df["Role"].isin(allowed)])
-
-# names with non-alpha chars
-import re
-print(df[~df["Name"].astype(str).str.match(r"^[A-Za-z ]+$")])
+    # names with non-alpha chars
+    print(df[~df["Name"].astype(str).str.match(r"^[A-Za-z ]+$")])
