@@ -5,6 +5,7 @@ def validate_df(df, allowed_roles=None, name_pattern=r"^[A-Za-z ]+$", min_age=0,
     report = {}
     # required columns
     required = ["Name", "Age", "Role"]
+    
     report["missing_columns"] = [c for c in required if c not in df.columns]
     if report["missing_columns"]:
         return report
