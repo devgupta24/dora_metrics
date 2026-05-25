@@ -1,0 +1,74 @@
+{
+  "deployments": [
+    {
+      "id": "deploy-seed-001",
+      "timestamp": "2025-05-24T08:00:00Z",
+      "commit_sha": "abc1234",
+      "branch": "main",
+      "status": "success",
+      "lead_time_hours": 6.5,
+      "environment": "production"
+    },
+    {
+      "id": "deploy-seed-002",
+      "timestamp": "2025-05-24T14:30:00Z",
+      "commit_sha": "def5678",
+      "branch": "main",
+      "status": "failed",
+      "lead_time_hours": 3.2,
+      "environment": "production"
+    },
+    {
+      "id": "deploy-seed-003",
+      "timestamp": "2025-05-25T09:15:00Z",
+      "commit_sha": "ghi9012",
+      "branch": "main",
+      "status": "success",
+      "lead_time_hours": 7.1,
+      "environment": "production"
+    },
+    {
+      "id": "deploy-c3b070eb",
+      "timestamp": "2026-05-25T10:41:17.397402Z",
+      "commit_sha": "abc1234",
+      "branch": "main",
+      "status": "success",
+      "lead_time_hours": 5.8,
+      "environment": "production"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "incident-seed-001",
+      "started_at": "2025-05-24T15:00:00Z",
+      "resolved_at": "2025-05-24T15:42:00Z",
+      "mttr_minutes": 42,
+      "severity": "P2",
+      "caused_by_deploy": true
+    },
+    {
+      "id": "incident-bab34580",
+      "started_at": "2026-05-25T10:41:35.947084Z",
+      "resolved_at": "2026-05-25T10:41:35.947095Z",
+      "mttr_minutes": 29,
+      "severity": "P2",
+      "caused_by_deploy": true
+    }
+  ],
+  "etl_runs": [
+    {
+      "id": "etl-seed-001",
+      "timestamp": "2025-05-25T09:00:00Z",
+      "rows_processed": 3,
+      "status": "success",
+      "script": "etl_pipeline.py"
+    },
+    {
+      "id": "etl-a04615c9",
+      "timestamp": "2026-05-25T10:41:27.591424Z",
+      "rows_processed": 3,
+      "status": "success",
+      "script": "etl_pipeline.py"
+    }
+  ]
+}

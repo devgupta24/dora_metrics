@@ -1,0 +1,100 @@
+name: DORA Metrics CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ── Job 1: Validate & Test ───────────────────────────────────────────────
+  validate:
+    name: Run ETL + Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas prometheus-client
+
+      - name: Run etl_pipeline.py
+        run: python etl_pipeline.py
+
+      - name: Run validation.py
+        run: python validation.py
+
+  # ── Job 2: Deploy + Record DORA Metrics ─────────────────────────────────
+  deploy-and-record:
+    name: Deploy & Record DORA
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # needed to get commit timestamp
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas prometheus-client
+
+      # ── Calculate real lead time from commit timestamp ───────────────────
+      - name: Calculate lead time
+        id: lead_time
+        run: |
+          COMMIT_EPOCH=$(git log -1 --format=%ct HEAD)
+          NOW_EPOCH=$(date +%s)
+          DIFF_SECONDS=$((NOW_EPOCH - COMMIT_EPOCH))
+          DIFF_HOURS=$(echo "scale=2; $DIFF_SECONDS / 3600" | bc)
+          echo "hours=$DIFF_HOURS" >> $GITHUB_OUTPUT
+          echo "Lead time: $DIFF_HOURS hours"
+
+      # ── Record successful deployment ─────────────────────────────────────
+      - name: Record successful deploy
+        if: success()
+        run: |
+          python generate_event.py \
+            --type deploy \
+            --status success \
+            --lead-time ${{ steps.lead_time.outputs.hours }} \
+            --commit ${{ github.sha }} \
+            --branch ${{ github.ref_name }}
+
+      # ── Record ETL run ───────────────────────────────────────────────────
+      - name: Record ETL run
+        if: success()
+        run: |
+          python generate_event.py \
+            --type etl \
+            --rows 3 \
+            --status success
+
+      # ── Record failed deploy ─────────────────────────────────────────────
+      - name: Record failed deploy
+        if: failure()
+        run: |
+          python generate_event.py \
+            --type deploy \
+            --status failed \
+            --lead-time ${{ steps.lead_time.outputs.hours }} \
+            --commit ${{ github.sha }}
+
+      # ── Push updated metrics.json back to repo ───────────────────────────
+      - name: Commit metrics.json back to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metrics.json
+          git diff --cached --quiet || \
+            git commit -m "chore: auto-update DORA metrics [skip ci]" && \
+            git push
